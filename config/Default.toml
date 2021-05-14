@@ -1,0 +1,12 @@
+[server]
+port = "8000"
+host = "127.0.0.1"
+
+[log]
+level = "info"
+
+[database]
+type = "ClickHouse"
+url = "tcp://ariadne:ariadne-pass@localhost:9000/ariadne"
+batching = true
+batching_frequency = "5s"
