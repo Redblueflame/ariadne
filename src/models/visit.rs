@@ -7,7 +7,6 @@ use std::net::Ipv6Addr;
 use uuid::Uuid;
 use nom::AsBytes;
 use clickhouse_rs::row;
-use crate::models::{Serializable, AriadneBlock};
 use serde_json::map::Entry::Vacant;
 
 /// Represents a user in the analytics database.
@@ -15,7 +14,7 @@ use serde_json::map::Entry::Vacant;
 #[derive(Debug, Clone)]
 pub struct Visit {
     /// A snowflake generated ID.
-    pub visit_id: Option<Uuid>,
+    pub visit_id: Uuid,
     /// The time the request were made
     /// It is in UTC for consistency, and is generated automatically.
     pub time: DateTime<Tz>,
@@ -58,18 +57,13 @@ pub struct Visit {
     /// And simply set to [None](std::option::Option::None) if it was not enabled.
     pub time_on_page: Option<u64>,
 }
-impl Serializable for Visit {
-    fn export(self, block: &mut AriadneBlock) {
-
-    }
-}
 impl RowBuilder for Visit {
     fn apply<K: ColumnType>(
         self,
         block: &mut Block<K>,
     ) -> Result<(), clickhouse_rs::errors::Error> {
         block.push(row!{
-            //visit_id: self.visit_id,
+            visit_id: Value::Uuid(*self.visit_id.as_bytes()),
             time: self.time,
             path: self.path,
             domain: self.domain,
@@ -82,7 +76,6 @@ impl RowBuilder for Visit {
             consent: if self.consent { 1_u8 } else { 0_u8 },
             time_on_page: self.time_on_page
         })?;
-        println!("{:#?}", block);
         Ok(())
     }
 }

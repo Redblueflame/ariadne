@@ -4,7 +4,6 @@ use clickhouse_rs::Block;
 use std::net::Ipv6Addr;
 use chrono_tz::Tz;
 use uuid::Uuid;
-use crate::models::{Serializable, AriadneBlock};
 use std::collections::HashMap;
 
 /// Represents a download in the analytics database.
@@ -42,21 +41,6 @@ pub struct Download {
     /// Checks if the user has a proxy or VPN enabled.
     /// This field is not 100% accurate, as it's provided from maxminds database.
     is_proxy: bool,
-}
-impl Serializable for Download {
-    fn export(self, block: &mut AriadneBlock) {
-        block.add_element("download_id", Value::Uuid(*self.download_id.as_bytes()));
-        block.add_element("time", Value::from(self.time));
-        block.add_element("mod_id", Value::from(self.mod_id));
-        block.add_element("version_id", Value::from(self.version_id));
-        block.add_element("file_name", Value::from(self.file_name));
-        block.add_element("ip", Value::Ipv6(self.ip.octets()));
-        block.add_element("user_agent", Value::from(self.user_agent));
-        block.add_element("country_code", Value::from(self.country_code));
-        block.add_element ("latitude", Value::from(self.latitude));
-        block.add_element("longitude", Value::from(self.longitude));
-        block.add_element("is_proxy", Value::from(if self.is_proxy { 1 } else { 0 }));
-    }
 }
 impl RowBuilder for Download {
     fn apply<K: ColumnType>(

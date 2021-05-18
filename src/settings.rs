@@ -30,9 +30,14 @@ pub struct Database {
     pub batching: bool,
     pub batching_frequency: String,
 }
+#[derive(Debug, Deserialize, Clone)]
+pub struct Maxmind {
+    pub path: Option<String>,
+}
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct Settings {
+    pub maxmind: Option<Maxmind>,
     pub server: Server,
     pub database: Database,
     pub log: Log,

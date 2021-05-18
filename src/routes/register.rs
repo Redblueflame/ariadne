@@ -12,27 +12,23 @@ use chrono::{DateTime, Utc};
 use chrono_tz::Tz;
 use crate::AppState;
 use crate::connector::DataConnector;
+use actix_web::http::{HeaderMap, HeaderName};
+use maxminddb::geoip2::City;
+use maxminddb::geoip2::model::Country;
 
 #[derive(Deserialize)]
 pub struct VisitInfo {
     path: String,
     domain: String,
-    consent: bool
+    consent: bool,
+    session_id: Option<String>
 }
 
 #[post("/visit")]
 pub async fn register_visit(req: HttpRequest, info: Json<VisitInfo>, ctx: web::Data<AppState>) -> impl Responder {
-    let user_agent = match req.headers().get(USER_AGENT) {
-        Some(e) => e,
-        None => {
-            return HttpResponse::NotAcceptable().json(Error {
-                name: "invalid_user_agent",
-                description: "The UserAgent field is required."
-            })
-        }
-    };
+
     let conn_info = req.connection_info();
-    let ip = match conn_info.remote_addr().clone() {
+    let ip = match conn_info.realip_remote_addr().clone() {
         Some(e) => e.split(":").next().unwrap(),
         None => {
             return HttpResponse::NotAcceptable().json(Error {
@@ -53,17 +49,45 @@ pub async fn register_visit(req: HttpRequest, info: Json<VisitInfo>, ctx: web::D
             }
         }
     };
+    let user_agent = match get_user_agent(req.headers()) {
+        Some(e) => e,
+        None => {
+            return HttpResponse::NotAcceptable().json(Error {
+                name: "invalid_user_agent",
+                description: "The user agent is invalid or not filled in."
+            })
+        }
+    };
+
+    // Get geoip info:
+    let city = match ctx.geoip.lookup(val) {
+        Ok(e) => e,
+        Err(_) => {
+            City {
+                city: None,
+                continent: None,
+                country: None,
+                location: None,
+                postal: None,
+                registered_country: None,
+                represented_country: None,
+                subdivisions: None,
+                traits: None
+            }
+        }
+    };
+    let (lat, long) = get_latitude_longitude(&city);
     let visit = Visit {
-        visit_id: None,
+        visit_id: Uuid::new_v4(),
         time: Utc::now().with_timezone(&Tz::GMT),
-        user_agent: user_agent.to_str().unwrap().to_string(),
+        user_agent,
         consent: info.consent.clone(),
         domain: info.domain.clone(),
         path: info.path.clone(),
         ip: val,
-        country_code: None,
-        latitude: None,
-        longitude: None,
+        country_code: get_country_code(&city),
+        latitude: lat,
+        longitude: long,
         session_id: None,
         time_on_page: None
     };
@@ -90,4 +114,33 @@ pub fn import_routes() -> Scope {
     web::scope("/register")
         .service(register_download)
         .service(register_visit)
+}
+
+//noinspection ALL
+fn get_user_agent(headers: &HeaderMap) -> Option<String> {
+    // Check the fowarded user agent
+    match headers.get(HeaderName::from_static("x-user-agent")) {
+        Some(e) => match e.to_str() {
+            Ok(e) => Some(e.to_string()),
+            Err(_) => None
+        },
+        None => {
+            // Use the main user agent
+            match headers.get(USER_AGENT)?.to_str() {
+                Ok(e) => Some(e.to_string()),
+                Err(_) => None
+            }
+        }
+    }
+}
+
+fn get_country_code(city: &City) -> Option<String> {
+    Some(city.country.clone()?.iso_code.clone()?.to_string())
+}
+fn get_latitude_longitude(city: &City) -> (Option<f64>, Option<f64>) {
+    let location = match city.location.clone() {
+        Some(e) => e,
+        None => return (None, None)
+    };
+    (location.latitude, location.longitude)
 }

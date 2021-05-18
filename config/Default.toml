@@ -10,3 +10,6 @@ type = "ClickHouse"
 url = "tcp://ariadne:ariadne-pass@localhost:9000/ariadne"
 batching = true
 batching_frequency = "5s"
+
+[maxmind]
+path = "./config/geolite.mmdb"

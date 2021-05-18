@@ -39,8 +39,6 @@ impl DataConnector for ClickhouseConnector {
         let mut block = Block::new();
         // Columnize everything
         for visit in visits {
-            info!("Adding a row to the block...");
-
             block.push(visit)?;
         }
         // Push it to the database:
