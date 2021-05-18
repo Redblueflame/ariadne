@@ -25,7 +25,7 @@ RUN cargo build --release
 FROM bitnami/minideb:latest
 RUN install_packages openssl ca-certificates
 COPY --from=build /usr/src/ariadne/target/release/ariadne /ariadne/ariadne
-COPY --from=build /usr/src/ariadne/config/* /ariadne/config
+COPY --from=build /usr/src/ariadne/config/* /ariadne/config/
 COPY --from=build /wait /wait
 WORKDIR /ariadne
 
