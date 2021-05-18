@@ -3,7 +3,7 @@ use crate::connector::{get_implementation, DataConnector};
 use crate::settings::Settings;
 use actix_rt::time;
 use actix_rt::Arbiter;
-use parse_duration::parse;
+use duration_str::parse;
 use log::{info, warn, error};
 use std::sync::{Arc, Mutex};
 use std::process::exit;

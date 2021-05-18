@@ -17,13 +17,13 @@ config = { version = "0.11", features = ["toml"] }
 serde = "1.0"
 chrono = { version = "0.4", features = ["serde"] }
 log = "0.4"
-parse_duration = "2.1"
 async-trait = "0.1"
 actix-cors = "0.5"
 reqwest = {version = "0.11", features = ["stream"]}
 thiserror = "1.0"
 chrono-tz = "0.5"
 futures-util = "0.3"
+duration-str = "0.2"
 uuid = { version = "0.8", features = ["v4"] }
 env_logger = "0.8"
 serde_json = "1"
