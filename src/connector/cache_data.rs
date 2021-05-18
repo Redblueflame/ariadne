@@ -5,15 +5,15 @@ use crate::models::download::Download;
 use crate::models::visit::Visit;
 use crate::settings::Settings;
 use async_trait::async_trait;
-use lockfree::queue::Queue;
+use crossbeam::queue::SegQueue;
 use log::info;
 use std::{collections::VecDeque, sync::Arc};
 use std::sync::atomic::Ordering;
 
 pub struct CacheData {
     implementation: ClickhouseConnector,
-    pending_visits: Queue<Visit>,
-    pending_downloads: Queue<Download>,
+    pending_visits: SegQueue<Visit>,
+    pending_downloads: SegQueue<Download>,
 }
 #[async_trait]
 impl DataConnector for CacheData {
@@ -39,8 +39,8 @@ impl CacheData {
     pub fn new(config: &Settings) -> Self {
         Self {
             implementation: get_implementation(config),
-            pending_visits: Queue::new(),
-            pending_downloads: Queue::new(),
+            pending_visits: SegQueue::new(),
+            pending_downloads: SegQueue::new(),
         }
     }
 }

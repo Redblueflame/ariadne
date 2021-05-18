@@ -28,7 +28,7 @@ uuid = { version = "0.8", features = ["v4"] }
 env_logger = "0.8"
 serde_json = "1"
 anyhow = "1.0"
-lockfree = "0.5"
+crossbeam = "0.8"
 nom = "6.1"
 tempdir = "0.3"
 maxminddb = { version = "0.17" }
