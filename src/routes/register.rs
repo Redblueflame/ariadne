@@ -2,7 +2,7 @@ use actix_web::{post, Responder, HttpResponse, web, Scope, HttpRequest};
 use serde::Deserialize;
 use actix_web::web::Json;
 use actix_web::http::header::USER_AGENT;
-use log::info;
+use log::{info, error};
 use crate::models::visit::Visit;
 use crate::routes::Error;
 use uuid::Uuid;
@@ -91,7 +91,13 @@ pub async fn register_visit(req: HttpRequest, info: Json<VisitInfo>, ctx: web::D
         session_id: None,
         time_on_page: None
     };
-    ctx.database.insert_visit(visit).await.unwrap();
+    match ctx.database.insert_visit(visit).await {
+        Ok(_) => {},
+        Err(e) => {
+            error!("There was an error while inserting the visit! {:#?}", e);
+            return HttpResponse::InternalServerError();
+        }
+    };
     // Add the data
     HttpResponse::NoContent().body("")
 }

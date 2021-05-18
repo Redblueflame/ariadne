@@ -9,6 +9,7 @@ use log::{warn, LevelFilter};
 use std::str::FromStr;
 use crate::connector::clickhouse::initialize_database;
 use actix_cors::Cors;
+use anyhow::Context;
 
 mod connector;
 mod error;
@@ -27,10 +28,10 @@ pub struct AppState {
 
 #[actix_web::main]
 async fn main() -> anyhow::Result<()> {
-    let config = Settings::new().unwrap();
+    let config = Settings::new().context("There was an error wile parsing the configuration file")?;
 
     env_logger::builder()
-        .filter_level(LevelFilter::from_str(&*config.log.level).unwrap())
+        .filter_level(LevelFilter::from_str(&*config.log.level).context("The log level is invalid.")?)
         .init();
     let mut scheduler = scheduler::Scheduler::new();
     let database = get_database(&mut scheduler, &config);

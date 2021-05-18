@@ -59,7 +59,10 @@ pub fn register_saving_scheduler(
         let data = db.clone();
         async move {
 
-            sync(data).await.unwrap()
+            match sync(data).await {
+                Ok(_) => {},
+                Err(e) => error!("An error occurred while exporting the visits: {:#?}", e)
+            }
         }
     });
 }
