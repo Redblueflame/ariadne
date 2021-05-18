@@ -28,7 +28,7 @@ pub struct AppState {
 
 #[actix_web::main]
 async fn main() -> anyhow::Result<()> {
-    let config = Settings::new().context("There was an error wile parsing the configuration file")?;
+    let config = Settings::new().context("There was an error while parsing the configuration file")?;
 
     env_logger::builder()
         .filter_level(LevelFilter::from_str(&*config.log.level).context("The log level is invalid.")?)

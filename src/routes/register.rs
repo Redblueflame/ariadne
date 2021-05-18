@@ -95,7 +95,7 @@ pub async fn register_visit(req: HttpRequest, info: Json<VisitInfo>, ctx: web::D
         Ok(_) => {},
         Err(e) => {
             error!("There was an error while inserting the visit! {:#?}", e);
-            return HttpResponse::InternalServerError();
+            return HttpResponse::InternalServerError().body("");
         }
     };
     // Add the data
