@@ -17,8 +17,8 @@ pub fn test_send<S>(ty: &S) where S: Send {
 pub trait DataConnector {
     async fn insert_visit(&self, visit: Visit) -> Result<(), AriadneErrors>;
     async fn insert_download(&self, download: Download) -> Result<(), AriadneErrors>;
-    async fn insert_mass_visits(&self, visits: Vec<Visit>) -> Result<(), AriadneErrors>;
-    async fn insert_mass_downloads(&self, downloads: Vec<Download>) -> Result<(), AriadneErrors>;
+    async fn insert_mass_visits(&self, visits: &Vec<Visit>) -> Result<(), AriadneErrors>;
+    async fn insert_mass_downloads(&self, downloads: &Vec<Download>) -> Result<(), AriadneErrors>;
 }
 
 pub fn get_implementation(config: &Settings) -> ClickhouseConnector {

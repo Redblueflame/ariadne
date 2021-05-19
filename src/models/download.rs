@@ -1,6 +1,7 @@
 use chrono::{DateTime, Utc};
 use clickhouse_rs::types::{ColumnType, RowBuilder, Value};
 use clickhouse_rs::Block;
+use clickhouse_rs::row;
 use std::net::Ipv6Addr;
 use chrono_tz::Tz;
 use uuid::Uuid;
@@ -9,6 +10,7 @@ use std::collections::HashMap;
 /// Represents a download in the analytics database.
 /// It holds data strictly necessary for threat protection,
 /// This data will only appear grouped on the front facing APIs, and only for the fields indicated in this document.
+#[derive(Debug, Clone)]
 pub struct Download {
     /// A snowflake generated ID.
     download_id: Uuid,
@@ -47,19 +49,19 @@ impl RowBuilder for Download {
         self,
         block: &mut Block<K>,
     ) -> Result<(), clickhouse_rs::errors::Error> {
-        let val: Vec<(String, Value)> = vec![
-            //("download_id".to_string(), Value::String(self.download_id.to_string())),
-            ("time".to_string(), Value::from(self.time)),
-            ("mod_id".to_string(), Value::from(self.mod_id)),
-            ("version_id".to_string(), Value::from(self.version_id)),
-            ("file_name".to_string(), Value::from(self.file_name)),
-            ("ip".to_string(), Value::Ipv6(self.ip.octets())),
-            ("user_agent".to_string(), Value::from(self.user_agent)),
-            ("country_code".to_string(), Value::from(self.country_code)),
-            ("latitude".to_string(), Value::from(self.latitude)),
-            ("longitude".to_string(), Value::from(self.longitude)),
-            ("is_proxy".to_string(), Value::from(if self.is_proxy { 1 } else { 0 })),
-        ];
-        block.push(val)
+        block.push(row!{
+            download_id: Value::Uuid(*self.download_id.as_bytes()),
+            time: self.time,
+            mod_id: self.mod_id,
+            version_id: self.version_id,
+            file_name: self.file_name,
+            ip: self.ip.to_string(),
+            user_agent: self.user_agent,
+            country_code: self.country_code,
+            latitude: self.latitude,
+            longitude: self.longitude,
+            is_proxy: if self.is_proxy { 1_u8 } else { 0_u8 }
+        })?;
+        Ok(())
     }
 }

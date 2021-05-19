@@ -35,11 +35,11 @@ impl DataConnector for ClickhouseConnector {
         unimplemented!()
     }
 
-    async fn insert_mass_visits(&self, visits: Vec<Visit>) -> Result<(), AriadneErrors> {
+    async fn insert_mass_visits(&self, visits: &Vec<Visit>) -> Result<(), AriadneErrors> {
         let mut block = Block::new();
         // Columnize everything
         for visit in visits {
-            block.push(visit)?;
+            block.push(visit.clone())?;
         }
         // Push it to the database:
         let mut handle = self.pool.get_handle().await?;
@@ -47,11 +47,11 @@ impl DataConnector for ClickhouseConnector {
         Ok(())
     }
 
-    async fn insert_mass_downloads(&self, downloads: Vec<Download>) -> Result<(), AriadneErrors> {
+    async fn insert_mass_downloads(&self, downloads: &Vec<Download>) -> Result<(), AriadneErrors> {
         let mut block = Block::new();
         // Columnize everything
         for download in downloads {
-            block.push(download)?;
+            block.push(download.clone())?;
         }
         // Push it to the database:
 

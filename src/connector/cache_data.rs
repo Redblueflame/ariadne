@@ -6,7 +6,7 @@ use crate::models::visit::Visit;
 use crate::settings::Settings;
 use async_trait::async_trait;
 use crossbeam::queue::SegQueue;
-use log::info;
+use log::{info, error};
 use std::{collections::VecDeque, sync::Arc};
 use std::sync::atomic::Ordering;
 
@@ -27,11 +27,11 @@ impl DataConnector for CacheData {
         Ok(())
     }
 
-    async fn insert_mass_visits(&self, visits: Vec<Visit>) -> Result<(), AriadneErrors> {
+    async fn insert_mass_visits(&self, visits: &Vec<Visit>) -> Result<(), AriadneErrors> {
         unimplemented!()
     }
 
-    async fn insert_mass_downloads(&self, downloads: Vec<Download>) -> Result<(), AriadneErrors> {
+    async fn insert_mass_downloads(&self, downloads: &Vec<Download>) -> Result<(), AriadneErrors> {
         unimplemented!()
     }
 }
@@ -56,7 +56,18 @@ pub async fn sync(db: Arc<CacheData>) -> Result<(), AriadneErrors> {
     }
     if vec.len() > 0 {
         info!("Synchronizing {} visits.", vec.len());
-        db.implementation.insert_mass_visits(vec).await?;
+        match db.implementation.insert_mass_visits(&vec).await {
+            Ok(_) => {
+                info!("Successfully synced visits.")
+            },
+            Err(e) => {
+                error!("An error occurred while inserting visits, rolling back cache.");
+                error!("Detailled error: {:#?}", e);
+                for elem in vec {
+                    db.insert_visit(elem);
+                }
+            }
+        }
     }
     Ok(())
 }
