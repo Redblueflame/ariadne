@@ -36,12 +36,18 @@ pub struct Maxmind {
 }
 
 #[derive(Debug, Deserialize, Clone)]
+pub struct Auth {
+    pub server_token: String,
+}
+
+#[derive(Debug, Deserialize, Clone)]
 pub struct Settings {
     pub maxmind: Option<Maxmind>,
     pub server: Server,
     pub database: Database,
     pub log: Log,
     pub env: ENV,
+    pub auth: Auth
 }
 
 #[derive(Clone, Debug, Deserialize)]

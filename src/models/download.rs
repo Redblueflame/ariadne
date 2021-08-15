@@ -13,36 +13,33 @@ use std::collections::HashMap;
 #[derive(Debug, Clone)]
 pub struct Download {
     /// A snowflake generated ID.
-    download_id: Uuid,
+    pub download_id: Uuid,
     /// The time the download was made
     /// It is in UTC for consistency, and is generated automatically.
-    time: DateTime<Tz>,
+    pub time: DateTime<Tz>,
     /// The ModID of the requested download
-    mod_id: String,
+    pub mod_id: String,
     /// The version id of the requested download
-    version_id: String,
+    pub version_id: String,
     /// The file name of the requested download
     /// This is made so statistics can be brought up of what file of a specific version was downloaded by users
-    file_name: String,
+    pub file_name: String,
     /// The ip of the user that made the request (if enabled in the settings)
     /// NOTE: This PII is simply not used for anything else than threat prevention,
     /// it is used to protect us from botting to get as much downloads as possible.
-    ip: Ipv6Addr,
+    pub ip: Ipv6Addr,
     /// The user agent used to make the request.
     /// It is logged by the analytics server itself, to avoid spoofing
-    user_agent: String,
+    pub user_agent: String,
     /// The country code of the client that made the request (if available)
     /// The data is generated from the maxmind database
-    country_code: Option<String>,
+    pub country_code: Option<String>,
     /// The latitude of the client that made the request (if available)
     /// The data is generated from the maxmind database
-    latitude: Option<f64>,
+    pub latitude: Option<f64>,
     /// The longitude of the request (if available)
     /// The data is generated from the maxmind database
-    longitude: Option<f64>,
-    /// Checks if the user has a proxy or VPN enabled.
-    /// This field is not 100% accurate, as it's provided from maxminds database.
-    is_proxy: bool,
+    pub longitude: Option<f64>
 }
 impl RowBuilder for Download {
     fn apply<K: ColumnType>(
@@ -59,8 +56,7 @@ impl RowBuilder for Download {
             user_agent: self.user_agent,
             country_code: self.country_code,
             latitude: self.latitude,
-            longitude: self.longitude,
-            is_proxy: if self.is_proxy { 1_u8 } else { 0_u8 }
+            longitude: self.longitude
         })?;
         Ok(())
     }

@@ -56,7 +56,7 @@ impl DataConnector for ClickhouseConnector {
         // Push it to the database:
 
         let mut handle = self.pool.get_handle().await?;
-        handle.insert("visits", block).await?;
+        handle.insert("downloads", block).await?;
         Ok(())
     }
 }

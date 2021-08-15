@@ -50,6 +50,7 @@ pub async fn sync(db: Arc<CacheData>) -> Result<(), AriadneErrors> {
         initialize_database(&db.implementation).await?;
         db.implementation.initialized.store(true, Ordering::Relaxed);
     }
+    // Import visits
     let mut vec: Vec<Visit> = vec![];
     while let Some(visit) = db.pending_visits.pop() {
         vec.push(visit);
@@ -65,6 +66,26 @@ pub async fn sync(db: Arc<CacheData>) -> Result<(), AriadneErrors> {
                 error!("Detailled error: {:#?}", e);
                 for elem in vec {
                     db.insert_visit(elem);
+                }
+            }
+        }
+    }
+    // Import downloads
+    let mut vec: Vec<Download> = vec![];
+    while let Some(download) = db.pending_downloads.pop() {
+        vec.push(download);
+    }
+    if vec.len() > 0 {
+        info!("Synchronizing {} downloads.", vec.len());
+        match db.implementation.insert_mass_downloads(&vec).await {
+            Ok(_) => {
+                info!("Successfully synced visits.")
+            },
+            Err(e) => {
+                error!("An error occurred while inserting visits, rolling back cache.");
+                error!("Detailled error: {:#?}", e);
+                for elem in vec {
+                    db.insert_download(elem);
                 }
             }
         }

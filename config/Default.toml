@@ -13,3 +13,6 @@ batching_frequency = "5s"
 
 [maxmind]
 path = "./config/geolite.mmdb"
+
+[auth]
+server_token = "zwGMsWpS7ei4SU2mv88LoauBuF1TyVcnjMtGpU3n1bYPFVHMf5HRkM6zH205OAsE"
