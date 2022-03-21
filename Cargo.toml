@@ -31,7 +31,7 @@ anyhow = "1.0"
 crossbeam = "0.8"
 nom = "6.1"
 tempdir = "0.3"
-maxminddb = { version = "0.17" }
+maxminddb = { version = "0.18" }
 [dependencies.clickhouse-rs]
 git = "https://github.com/suharev7/clickhouse-rs"
 branch = "async-await"
